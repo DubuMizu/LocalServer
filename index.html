@@ -94,6 +94,7 @@
     <button class="btn" data-path="/button/5">Button 5</button>
     <button class="btn" data-path="/button/6">Button 6</button>
     <button class="btn" data-path="/button/7">Button 7</button>
+    <button class="btn" data-path="/back">← Back</button>
     <button class="btn wide" data-path="/nextscene">⏭ Next Scene</button>
   </div>
 
@@ -111,6 +112,11 @@
       {
           command =
               path.replace("/button/", "");
+      }
+
+      if (path === "/back")
+      {
+          command = "back";
       }
 
       if (path === "/nextscene")
