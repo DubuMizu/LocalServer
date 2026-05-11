@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Remote Controller</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f13;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px 16px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .btn {
+      background: #1e1e28;
+      border: 2px solid #2e2e3e;
+      border-radius: 16px;
+      color: #ddd;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 28px 0;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s, transform 0.08s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn:active, .btn.pressed {
+      background: #2e2e50;
+      border-color: #6c63ff;
+      transform: scale(0.96);
+    }
+
+    .btn.wide {
+      grid-column: 1 / -1;
+      background: #1a1a2e;
+      border-color: #3d3d6e;
+      color: #a09fff;
+      padding: 22px 0;
+    }
+
+    .btn.wide:active, .btn.wide.pressed {
+      background: #2a2a50;
+      border-color: #6c63ff;
+    }
+
+    #status {
+      font-size: 0.8rem;
+      color: #555;
+      letter-spacing: 0.04em;
+      height: 18px;
+    }
+
+    #status.ok  { color: #4caf80; }
+    #status.err { color: #e05c5c; }
+  </style>
+</head>
+<body>
+
+  <h1>Remote Controller</h1>
+
+  <div id="grid">
+    <button class="btn" data-path="/button/1">Button 1</button>
+    <button class="btn" data-path="/button/2">Button 2</button>
+    <button class="btn" data-path="/button/3">Button 3</button>
+    <button class="btn" data-path="/button/4">Button 4</button>
+    <button class="btn" data-path="/button/5">Button 5</button>
+    <button class="btn" data-path="/button/6">Button 6</button>
+    <button class="btn" data-path="/button/7">Button 7</button>
+    <button class="btn wide" data-path="/nextscene">⏭ Next Scene</button>
+  </div>
+
+  <div id="status"></div>
+
+<script>
+  const FIREBASE_URL =
+  "https://unityremotecontrol-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+  async function sendCommand(path)
+  {
+      let command = "none";
+
+      if (path.includes("/button/"))
+      {
+          command =
+              path.replace("/button/", "");
+      }
+
+      if (path === "/nextscene")
+      {
+          command = "next";
+      }
+
+      try
+      {
+          await fetch(
+              `${FIREBASE_URL}/command.json`,
+              {
+                  method: "PUT",
+                  headers: {
+                      "Content-Type":
+                      "application/json"
+                  },
+                  body: JSON.stringify(command)
+              }
+          );
+
+          showStatus(
+              `Sent ${command}`,
+              "ok"
+          );
+      }
+      catch
+      {
+          showStatus(
+              "Connection error",
+              "err"
+          );
+      }
+  }
+
+  // ── Wire up buttons ─────────────────────
+  document.querySelectorAll(".btn")
+  .forEach(btn =>
+  {
+      btn.addEventListener(
+          "click",
+          () =>
+          {
+              btn.classList.add(
+                  "pressed"
+              );
+
+              sendCommand(
+                  btn.dataset.path
+              );
+
+              setTimeout(() =>
+              {
+                  btn.classList.remove(
+                      "pressed"
+                  );
+              }, 120);
+          }
+      );
+  });
+
+  // ── Status helper ──────────────────────
+  let statusTimer;
+
+  function showStatus(
+      msg,
+      type = ""
+  )
+  {
+      const status =
+          document.getElementById(
+              "status"
+          );
+
+      status.textContent = msg;
+      status.className = type;
+
+      clearTimeout(
+          statusTimer
+      );
+
+      statusTimer =
+          setTimeout(() =>
+          {
+              status.textContent = "";
+              status.className = "";
+          }, 2500);
+  }
+</script>
+</body>
+</html>
