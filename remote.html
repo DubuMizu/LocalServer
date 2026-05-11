@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    padding:20px;
+    background:#111;
+}
+
+button{
+    font-size:40px;
+    height:120px;
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="send(1)">1</button>
+<button onclick="send(2)">2</button>
+<button onclick="send(3)">3</button>
+<button onclick="send(4)">4</button>
+<button onclick="send(5)">5</button>
+<button onclick="send(6)">6</button>
+<button onclick="send(7)">7</button>
+<button onclick="nextScene()">NEXT</button>
+
+<script>
+const ip = "192.168.1.50:8080";
+
+function send(num){
+    fetch(`http://${ip}/button/${num}`);
+}
+
+function nextScene(){
+    fetch(`http://${ip}/nextscene`);
+}
+</script>
+
+</body>
+</html>
