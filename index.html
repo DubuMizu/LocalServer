@@ -30,12 +30,21 @@
       text-transform: uppercase;
     }
 
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      width: 100%;
-      max-width: 360px;
+    .page {
+    display: none;
+    width: 100%;
+    }
+
+    .page.active {
+    display: block;
+    }
+
+    .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
     }
 
     .btn {
@@ -85,21 +94,45 @@
 <body>
 
   <h1>Remote Controller</h1>
+    <div id="page1" class="page active">
+        <div class="grid">
 
-  <div id="grid">
-    <button class="btn" data-path="/button/1">Button 1</button>
-    <button class="btn" data-path="/button/2">Button 2</button>
-    <button class="btn" data-path="/button/3">Button 3</button>
-    <button class="btn" data-path="/button/4">Button 4</button>
-    <button class="btn" data-path="/button/5">Button 5</button>
-    <button class="btn" data-path="/button/6">Button 6</button>
-    <button class="btn" data-path="/button/7">Button 7</button>
-    <button class="btn" data-path="/back">← Back</button>
-    <button class="btn wide" data-path="/nextscene">⏭ Next Scene</button>
-  </div>
+            <button class="btn" data-path="/button/1">Button 1</button>
+            <button class="btn" data-path="/button/2">Button 2</button>
+            <button class="btn" data-path="/button/3">Button 3</button>
+            <button class="btn" data-path="/button/4">Button 4</button>
+            <button class="btn" data-path="/button/5">Button 5</button>
+            <button class="btn" data-path="/button/6">Button 6</button>
+            <button class="btn" data-path="/button/7">Button 7</button>
+            <button class="btn" data-path="/back">← Back</button>
 
-  <div id="status"></div>
+            <button class="btn wide"
+                    id="nextBtn">
+            ⏭ Next Page
+            </button>
 
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <div class="grid">
+
+            <button class="btn" data-path="/button/8">Button A</button>
+            <button class="btn" data-path="/button/9">Button B</button>
+            <button class="btn" data-path="/button/10">Button C</button>
+            <button class="btn" data-path="/button/11">Button D</button>
+            <button class="btn" data-path="/button/12">Button E</button>
+            <button class="btn" data-path="/button/13">Button F</button>
+            <button class="btn" data-path="/button/14">Button G</button>
+            <button class="btn" data-path="/back">← Back</button>
+
+            <button class="btn wide"
+                    id="prevBtn">
+            ⏮ Previous Page
+            </button>
+
+        </div>
+    </div>
 <script>
   const FIREBASE_URL =
   "https://unityremotecontrol-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -113,7 +146,7 @@
           command =
               path.replace("/button/", "");
       }
-
+      
       if (path === "/back")
       {
           command = "back";
@@ -177,6 +210,62 @@
           }
       );
   });
+
+  // Page Switching
+  let currentPage = 0;
+
+    const pages = [
+        document.getElementById(
+            "page1"
+        ),
+        document.getElementById(
+            "page2"
+        )
+    ];
+
+    function switchPage(index)
+    {
+        pages.forEach(page =>
+            page.classList.remove(
+                "active"
+            )
+        );
+
+        pages[index]
+            .classList.add(
+                "active"
+            );
+
+        currentPage = index;
+    }
+
+    document
+    .getElementById("nextBtn")
+    .addEventListener(
+        "click",
+        () =>
+        {
+            sendCommand(
+                "/nextscene"
+            );
+
+            switchPage(1);
+        }
+    );
+
+    document
+    .getElementById("prevBtn")
+    .addEventListener(
+        "click",
+        () =>
+        {
+            sendCommand(
+                "/nextscene"
+            );
+
+            switchPage(0);
+        }
+    );
 
   // ── Status helper ──────────────────────
   let statusTimer;
